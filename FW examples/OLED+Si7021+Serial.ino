@@ -1,10 +1,13 @@
 
 /**
- * NodeMCU (ESP12E) + Si7021 + 128x64px OLED
- *
- * made by Petus (2019)
- * https://chiptron.cz
- * https://time4ee.com
+ * Meteo-v3 
+ * OLED and Si7021 - the OLED (0.96", SSD1306) and Si7021 are connected to I2C connectors
+ * The temperature and humidity are shown on display and also in Serial Monitor
+ * 
+ * made by chiptron.cz (2019)
+ * 
+ * czech website www.chiptron.cz
+ * english website www.time4ee.com
  *
  * Si7021 library - https://github.com/LowPowerLab/SI7021
  * 128x64px OLED display - http://www.adafruit.com/category/63_98
@@ -33,7 +36,7 @@ void setup() {
   sensor.begin(SDA,SCL);
 
   // by default, we'll generate the high voltage from the 3.3v line internally! (neat!)
-  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3D (for the 128x64)
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3C (for the 128x64)
 
   delay(2000);
   display.clearDisplay();
@@ -60,11 +63,12 @@ void loop() {
   int temperature = sensor.getCelsiusHundredths();
   unsigned int humidity = sensor.getHumidityPercent();
 
-  Serial.println("Temperature: ");
+  Serial.print("Temperature: ");
   Serial.print(String(temperature/100.0, 2));
   Serial.println(" °C");
-  Serial.println("Humidity: ");
-  Serial.println(humidity);
+  Serial.print("Humidity: ");
+  Serial.print(humidity);
+  Serial.println(" %");
 
   display.clearDisplay();
   display.setCursor(0, 0);
