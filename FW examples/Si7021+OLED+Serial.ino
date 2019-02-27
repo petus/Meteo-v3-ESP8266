@@ -49,7 +49,7 @@ void setup() {
   display.setCursor(0,10);
   display.println("time4ee.com");
   display.setCursor(0,20);
-  display.println("Meteostation board");
+  display.println("Meteo-v3");
   display.display();
   delay(2000);
   display.clearDisplay();
