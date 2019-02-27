@@ -18,6 +18,8 @@
 #define SDA 4 // GPIO4 on D2
 #define SCL 5 // GPIO5 on D1
 
+#define SLEEP_DELAY_IN_SECONDS  30
+
 SI7021 sensor;
 
 void setup() {
