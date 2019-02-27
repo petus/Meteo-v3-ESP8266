@@ -1,10 +1,12 @@
 
 /**
- * NodeMCU (ESP12E) + Si7021 = Weather station
- *
- * made by Petus
- * http://chiptron.cz
- * http://time4ee.com
+ * Meteo-v3 
+ * Si7021 and TMEP.EU service example - The temperature and humidity are sent to tmep.cz (tmep.eu)
+ * 
+ * made by chiptron.cz (2019)
+ * 
+ * czech website www.chiptron.cz
+ * english website www.time4ee.com
  *
  * Si7021 library - https://github.com/LowPowerLab/SI7021
  * 
@@ -24,7 +26,7 @@
 const char* ssid     = "SSID";
 const char* password = "PASSWORD";
 
-const char* host = "HostName.tmep.cz";
+const char* host = "HOSTNAME.tmep.cz"; // or HOSTNAME.tmep.eu
 
 SI7021 sensor;
 
@@ -37,10 +39,10 @@ void setup() {
   Serial.println();
   Serial.println();
 
-  Serial.print("Meteostation by Petus\n");
-  Serial.print("http://chiptron.cz\n");
-  Serial.print("http://time4ee.com\n");
-  Serial.println("FW version: 1.2\n");
+  Serial.println("Made by chiptron.cz");
+  Serial.println("http://chiptron.cz");
+  Serial.println("http://time4ee.com");
+  Serial.println("FW version: 1.3");
   
   Serial.print("Connecting to ");
   Serial.println(ssid);
