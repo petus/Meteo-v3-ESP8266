@@ -2,6 +2,9 @@
  * Meteo-v3 
  * DS18B20 and TMEP.EU service example - The temperature is sent to tmep.cz (tmep.eu)
  * Temperature sensor DS18B20 is connected to GPIO0 (D3)
+ * If you want to use parasitic mode of DS18B20, connect GND and VDD of 
+ * DS18B20 to GND of MeteoV3 and assembly R4 resistor from 3.3V to DATA pin
+ * of DS18B20
  * 
  * made by chiptron.cz (2019)
  * 
