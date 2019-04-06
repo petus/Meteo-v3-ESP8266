@@ -1,4 +1,3 @@
-
 /**
  * Meteo-v3 
  * OLED and Si7021 - the OLED (0.96", SSD1306) and Si7021 are connected to I2C connectors
@@ -23,8 +22,7 @@
 #define SDA 4 // GPIO4 on D2
 #define SCL 5 // GPIO5 on D1
 
-#define OLED_RESET 19 //choose unused pin, connect the RESET pin to VCC (3.3V)
-Adafruit_SSD1306 display(OLED_RESET);
+Adafruit_SSD1306 display(NULL);
 
 SI7021 sensor;
 
