@@ -22,6 +22,7 @@
 #define SDA 4 // GPIO4 on D2
 #define SCL 5 // GPIO5 on D1
 
+// Type of display - only GND, VCC, SCL, SDA, no reset pin
 Adafruit_SSD1306 display(NULL);
 
 SI7021 sensor;
