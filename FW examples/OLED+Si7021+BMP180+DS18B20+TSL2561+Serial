@@ -1,0 +1,232 @@
+/**
+ * Meteo-v3 
+ * OLED and Si7021, BMP180, DS18B20 and TSL2561 - the OLED (0.96", SSD1306) and Si7021, 
+ * BMP180, TSL2561 are connected to I2C connectors, DS18B20 to 1-Wire connector
+ * The temperature, humidity and light are shown on display and also in Serial Monitor
+ * 
+ * made by chiptron.cz (2019)
+ * 
+ * czech website www.chiptron.cz
+ * english website www.time4ee.com
+ *
+ * Si7021 library - https://github.com/LowPowerLab/SI7021
+ * 128x64px OLED display - http://www.adafruit.com/category/63_98
+ * Add to Arduino IDE "Adafruit GFX Library" https://github.com/adafruit/Adafruit-GFX-Library
+ * "Adafruit SSD1306" library https://github.com/adafruit/Adafruit_SSD1306
+ * "Adafruit Unified Sensor" library https://github.com/adafruit/Adafruit_Sensor
+ * BMP180 library - https://github.com/adafruit/Adafruit-BMP085-Library (BMP180 is supported)
+ * TSL2561 libray - https://github.com/adafruit/Adafruit_TSL2561
+ * DS18B20 library - https://github.com/milesburton/Arduino-Temperature-Control-Library
+ */
+#include "Arduino.h"
+#include "Esp.h"
+
+#include <ESP8266WiFi.h>
+#include <Wire.h>
+
+// Library for Si7021
+#include <SI7021.h>
+
+// Library for OLED
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+
+// Library for DS18B20
+#include <OneWire.h>
+#include <DallasTemperature.h>
+
+// Library for BMP180
+#include <Adafruit_BMP085.h>
+
+// Library for TSL2561 
+#include <Adafruit_Sensor.h>
+#include <Adafruit_TSL2561_U.h>
+
+// Data wire is connected to GPIO0 - D3 of ESP8266
+#define ONE_WIRE_BUS 0
+
+// Define I2C pins
+#define SDA 4 // GPIO4 on D2
+#define SCL 5 // GPIO5 on D1
+
+// OLED - OLED 0.96" from ebay (GND, VCC, SCL, SDA, no reset pin) 
+Adafruit_SSD1306 display(NULL);
+
+// Si7021
+SI7021 Si7021;
+
+// Set oneWire bus
+OneWire oneWire(ONE_WIRE_BUS);
+
+// Set oneWire bus for Dallas Temperature sensor
+DallasTemperature DS18B20(&oneWire);
+
+// BMP180
+Adafruit_BMP085 BMP180;
+
+// TSL2561
+Adafruit_TSL2561_Unified TSL2561 = Adafruit_TSL2561_Unified(TSL2561_ADDR_FLOAT, 12345);
+sensor_t sensor;
+
+// OLED pages
+int page=1;
+
+void setup() {
+  
+  Serial.begin(9600); // Open serial connection to report values to host
+  delay(10);
+
+  // Si7021 initialization
+  Si7021.begin(SDA, SCL);
+
+  // DS18B20 initialization
+  DS18B20.begin();
+
+  // BMP180 initialization
+  BMP180.begin(); 
+
+  // by default, we'll generate the high voltage from the 3.3v line internally! (neat!)
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3C (for the 128x64)
+
+  delay(2000);
+  display.clearDisplay();
+
+  // text display tests
+  display.setTextSize(1);
+  display.setTextColor(WHITE);
+  display.setCursor(0,0);
+  display.println("chiptron.cz");
+  display.setCursor(0,10);
+  display.println("time4ee.com");
+  display.setCursor(0,20);
+  display.println("Meteo-v3");
+  display.display();
+  delay(2000);
+  display.clearDisplay();
+
+}
+
+
+void loop() {
+  
+  if(page == 1)
+  {
+    int temperature = Si7021.getCelsiusHundredths();
+    unsigned int humidity = Si7021.getHumidityPercent();
+
+    Serial.print("Temperature: ");
+    Serial.print(String(temperature/100.0, 2));
+    Serial.println(" °C");
+    Serial.print("Humidity: ");
+    Serial.print(humidity);
+    Serial.println(" %");
+
+    display.setTextSize(1);
+    display.setTextColor(WHITE);
+    display.clearDisplay();
+    display.setCursor(0, 0);
+    display.println("Si7021");
+    display.setCursor(0, 10);
+    display.print(String(temperature/100.0, 2));
+    display.println(" 'C");
+    display.setCursor(0,20);
+    display.print(humidity);
+    display.println(" %");
+    display.setCursor(100, 20);
+    display.print(page);
+    display.println("/4");
+    display.display();
+  }
+  else if (page == 2)
+  {
+    DS18B20.requestTemperatures();
+
+    Serial.print("Temperature: ");
+    Serial.print(DS18B20.getTempCByIndex(0));
+    Serial.println(" °C");
+
+    display.setTextSize(1);
+    display.setTextColor(WHITE);
+    display.clearDisplay();
+    display.setCursor(0, 0);
+    display.println("DS18B20");
+    display.setCursor(0, 10);
+    display.print(DS18B20.getTempCByIndex(0));
+    display.println(" 'C");
+    display.setCursor(100, 20);
+    display.print(page);
+    display.println("/4");
+    display.display();
+  }
+  else if (page == 3)
+  {
+    TSL2561.getSensor(&sensor);
+
+    TSL2561.enableAutoRange(true);
+
+    TSL2561.setIntegrationTime(TSL2561_INTEGRATIONTIME_13MS);      /* fast but low resolution */
+
+    sensors_event_t event;
+    TSL2561.getEvent(&event);
+
+    Serial.print(event.light); 
+    Serial.println(" lux");
+
+    display.setTextSize(1);
+    display.setTextColor(WHITE);
+    display.clearDisplay();
+    display.setCursor(0, 0);
+    display.println("TSL2561");
+    display.setCursor(0, 10);
+    display.print(event.light);
+    display.println(" lux");
+    display.setCursor(100, 20);
+    display.print(page);
+    display.println("/4");
+    display.display();
+
+  }
+  
+  else if (page == 4)
+  {
+    int temperature = BMP180.readTemperature();  // read temperature
+    int pressure = BMP180.readPressure(); // read pressure
+
+    Serial.print("Temperature: ");
+    Serial.print(temperature);
+    Serial.println(" °C");
+
+    display.setTextSize(1);
+    display.setTextColor(WHITE);
+    display.clearDisplay();
+    display.setCursor(0, 0);
+    display.println("BMP180");
+    display.setCursor(0, 10);
+    display.print(temperature);
+    display.println(" 'C");
+    display.setCursor(0,20);
+    display.print(pressure);
+    display.println(" hPa");
+    display.setCursor(100, 20);
+    display.print(page);
+    display.println("/4");
+    display.display();
+  }
+  else 
+  {
+    // do nothing
+  }
+
+
+  if(page < 4)
+  {
+    page++;  
+  }
+  else
+  {
+    page = 1;
+  }
+
+  delay(2000);
+  
+}
