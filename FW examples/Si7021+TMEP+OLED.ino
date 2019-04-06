@@ -26,8 +26,8 @@
 
 #define SLEEP_DELAY_IN_SECONDS  30
 
-#define OLED_RESET 19 //choose unused pin, connect the RESET pin to VCC (3.3V)
-Adafruit_SSD1306 display(OLED_RESET);
+// Type of display - only GND, VCC, SCL, SDA, no reset pin
+Adafruit_SSD1306 display(NULL);
 
 const char* ssid     = "SSID";
 const char* password = "PASSWORD";
