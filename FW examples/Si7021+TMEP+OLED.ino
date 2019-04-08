@@ -10,6 +10,9 @@
  * english website www.time4ee.com
  *
  * Si7021 library - https://github.com/LowPowerLab/SI7021
+ * 128x64px OLED display - http://www.adafruit.com/category/63_98
+ * Adafruit GFX Library https://github.com/adafruit/Adafruit-GFX-Library
+ * Adafruit SSD1306 library https://github.com/adafruit/Adafruit_SSD1306
  * 
  */
 
