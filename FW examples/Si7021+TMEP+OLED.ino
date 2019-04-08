@@ -51,7 +51,6 @@ void setup() {
   Serial.println("Made by chiptron.cz");
   Serial.println("http://chiptron.cz");
   Serial.println("http://time4ee.com");
-  Serial.println("FW version: 1.3");
 
   // by default, we'll generate the high voltage from the 3.3v line internally! (neat!)
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);  // initialize with the I2C addr 0x3C (for the 128x64)
@@ -135,8 +134,6 @@ void loop() {
 
   Serial.print("Requesting URL: ");
   Serial.println(url);
-
-  //temperatureH = String(temperature/100.0, 2);
 
   // This will send the request to the server
     client.print(String("GET ") + url + "tempC=" + String(temperature/100.0, 2) + "&humV=" + humidity + " HTTP/1.1\r\n" +
