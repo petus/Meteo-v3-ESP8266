@@ -57,7 +57,7 @@ void loop()
 {
   readString = Serial.readString();
 
-  if (readString == 'help')
+  if (readString == "help")
   {
     Serial.println("*****HELP*****");
     Serial.println("Write 'i2scanner' for scanning of I2C bus");
@@ -67,7 +67,7 @@ void loop()
     Serial.println("Write 'tsl2561' for reading from TSL2561");
 
   }
-  else if (readString == 'i2scanner')
+  else if (readString == "i2scanner")
   {
     Serial.println("*****I2C Scanner*****");
     //code developed by https://playground.arduino.cc/Main/I2cScanner/
@@ -110,21 +110,21 @@ void loop()
 
     Serial.println("*****I2C Scanner*****");
   }
-  else if (readString == 'si7021')
+  else if (readString == "si7021")
   {
     Serial.println("*****Si7021*****");
     Serial.println("Connect SDA to 4, SCL to 5");
 
-    SI7021 si7021;
-    si7021.begin(SDA,SCL);
-    if(!si7021)
+    SI7021 sensor;
+    sensor.begin(SDA,SCL);
+    /*if(!sensor)
     {
       Serial.println("Sensor is not connected.");
     }
-    else
+    else*/
     {
-      int temperature = si7021.getCelsiusHundredths();
-      unsigned int humidity = si7021.getHumidityPercent();
+      int temperature = sensor.getCelsiusHundredths();
+      unsigned int humidity = sensor.getHumidityPercent();
       Serial.println("Temperature");
       Serial.print(String(temperature/100.0, 2));
       Serial.println(" °C");
@@ -134,20 +134,20 @@ void loop()
     }
  
     Serial.println("*****Si7021*****");
-    si7021.flush();
+    //sensor.flush();
   }
-  else if (readString == 'bmp180')
+  else if (readString == "bmp180")
   {
     Serial.println("*****BMP180*****");
     Serial.println("Connect SDA to 4, SCL to 5");
 
     Adafruit_BMP085 bmp180;
     bmp180.begin();
-    if(!bmp180)
+    /*if(!bmp180)
     {
       Serial.println("Sensor is not connected.");
     }
-    else
+    else*/
     {
       int temperature = bmp180.readTemperature();  // read temperature
       int pressure = bmp180.readPressure();  // read pressure
@@ -160,20 +160,20 @@ void loop()
     }
 
     Serial.println("*****BMP180*****");
-    bmp180.flush();
+    //bmp180.flush();
   }
-  else if (readString == 'tsl2561')
+  else if (readString == "tsl2561")
   {
     Serial.println("*****TSL2561*****");
     Serial.println("Connect SDA to 4, SCL to 5");
 
     Adafruit_TSL2561_Unified TSL2561 = Adafruit_TSL2561_Unified(TSL2561_ADDR_FLOAT, 12345);
     sensor_t sensor;
-    if(!TSL2561)
+    /*if(!TSL2561)
     {
       Serial.println("Sensor is not connected.");
     }
-    else
+    else*/
     {
       TSL2561.getSensor(&sensor);
       TSL2561.enableAutoRange(true);
@@ -186,21 +186,21 @@ void loop()
     }
     
     Serial.println("*****TSL2561*****");
-    TSL2561.flush();
+    //TSL2561.flush();
 
   }
-  else if (readString == 'ds18b20')
+  else if (readString == "ds18b20")
   {
     Serial.println("*****DS18B20*****");
     Serial.println("Connect DS18B20 Data to GPIO0 (D3)");
     
     OneWire oneWire(ONE_WIRE_BUS);
     DallasTemperature DS18B20(&oneWire);
-    if(!DS18B20)
+    /*if(!DS18B20)
     {
       Serial.println("Sensor is not connected.");
     }
-    else
+    else*/
     {
       DS18B20.requestTemperatures();
       Serial.println("Temperature: ");
@@ -209,7 +209,7 @@ void loop()
     }
 
     Serial.println("*****DS18B20*****");
-    DS18B20.flush();
+    //DS18B20.flush();
   }
   else
   {
