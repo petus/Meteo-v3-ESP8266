@@ -60,14 +60,15 @@ void loop()
   if (readString == "help")
   {
     Serial.println("*****HELP*****");
-    Serial.println("Write 'i2scanner' for scanning of I2C bus");
+    Serial.println("Write 'i2cscanner' for scanning of I2C bus");
     Serial.println("Write 'si7021' for reading from Si7021");
     Serial.println("Write 'bmp180' for reading from BMP180");
     Serial.println("Write 'ds18b20' for reading from DS18B20");
     Serial.println("Write 'tsl2561' for reading from TSL2561");
+    Serial.println("*****HELP*****");
 
   }
-  else if (readString == "i2scanner")
+  else if (readString == "i2cscanner")
   {
     Serial.println("*****I2C Scanner*****");
     //code developed by https://playground.arduino.cc/Main/I2cScanner/
@@ -117,14 +118,16 @@ void loop()
 
     SI7021 sensor;
     sensor.begin(SDA,SCL);
-    /*if(!sensor)
+
+    int temperature = sensor.getCelsiusHundredths();
+    unsigned int humidity = sensor.getHumidityPercent();
+
+    if((temperature == 12886) && (humidity == 118))
     {
-      Serial.println("Sensor is not connected.");
+      Serial.println("Sensor is not connected");
     }
-    else*/
+    else
     {
-      int temperature = sensor.getCelsiusHundredths();
-      unsigned int humidity = sensor.getHumidityPercent();
       Serial.println("Temperature");
       Serial.print(String(temperature/100.0, 2));
       Serial.println(" °C");
@@ -132,9 +135,8 @@ void loop()
       Serial.print(humidity);
       Serial.println(" %");
     }
- 
+
     Serial.println("*****Si7021*****");
-    //sensor.flush();
   }
   else if (readString == "bmp180")
   {
@@ -143,14 +145,16 @@ void loop()
 
     Adafruit_BMP085 bmp180;
     bmp180.begin();
-    /*if(!bmp180)
+
+    int temperature = bmp180.readTemperature();  // read temperature
+    int pressure = bmp180.readPressure();  // read pressure
+
+    if((temperature == 4) && (pressure == 100395))
     {
       Serial.println("Sensor is not connected.");
     }
-    else*/
+    else
     {
-      int temperature = bmp180.readTemperature();  // read temperature
-      int pressure = bmp180.readPressure();  // read pressure
       Serial.println("Temperature: ");
       Serial.print(temperature);
       Serial.println(" °C");
@@ -160,7 +164,6 @@ void loop()
     }
 
     Serial.println("*****BMP180*****");
-    //bmp180.flush();
   }
   else if (readString == "tsl2561")
   {
@@ -169,52 +172,56 @@ void loop()
 
     Adafruit_TSL2561_Unified TSL2561 = Adafruit_TSL2561_Unified(TSL2561_ADDR_FLOAT, 12345);
     sensor_t sensor;
-    /*if(!TSL2561)
+    
+    TSL2561.getSensor(&sensor);
+    TSL2561.enableAutoRange(true);
+    TSL2561.setIntegrationTime(TSL2561_INTEGRATIONTIME_13MS);      /* fast but low resolution */
+    sensors_event_t event;
+    TSL2561.getEvent(&event);
+      
+    if(event.light == 65536)
     {
       Serial.println("Sensor is not connected.");
     }
-    else*/
+    else
     {
-      TSL2561.getSensor(&sensor);
-      TSL2561.enableAutoRange(true);
-      TSL2561.setIntegrationTime(TSL2561_INTEGRATIONTIME_13MS);      /* fast but low resolution */
-      sensors_event_t event;
-      TSL2561.getEvent(&event)  ;
       Serial.println("Light");
       Serial.print(event.light); 
       Serial.println(" lux"); 
     }
     
     Serial.println("*****TSL2561*****");
-    //TSL2561.flush();
 
   }
   else if (readString == "ds18b20")
   {
     Serial.println("*****DS18B20*****");
     Serial.println("Connect DS18B20 Data to GPIO0 (D3)");
-    
+
     OneWire oneWire(ONE_WIRE_BUS);
     DallasTemperature DS18B20(&oneWire);
-    /*if(!DS18B20)
+    DS18B20.begin();
+    
+    DS18B20.requestTemperatures();
+    int temperature = DS18B20.getTempCByIndex(0);
+    if(temperature == -127.00)
     {
       Serial.println("Sensor is not connected.");
     }
-    else*/
+    else
     {
       DS18B20.requestTemperatures();
       Serial.println("Temperature: ");
-      Serial.print(DS18B20.getTempCByIndex(0));
+      Serial.print(temperature);
       Serial.println(" °C");
     }
 
     Serial.println("*****DS18B20*****");
-    //DS18B20.flush();
   }
   else
   {
-    Serial.println("Unknown command");
-    Serial.println("Write 'help'");
+//    Serial.println("Unknown command");
+//    Serial.println("Write 'help'");
   }
   Serial.flush();
 }
