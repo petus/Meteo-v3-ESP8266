@@ -10,6 +10,7 @@
  * english website www.time4ee.com
  * 
  * Adafruit BMP085 library (BMP180 is supported)
+ * https://github.com/adafruit/Adafruit-BMP085-Library/
 */
 #include <Wire.h>
 #include <Adafruit_BMP085.h>
