@@ -1,0 +1,15 @@
+Part Value                        Device                             Package                      Description                
+C1   100n                         C-EUC1206                          C1206                        CAPACITOR, European symbol 
+C2   100n                         C-EUC1206                          C1206                        CAPACITOR, European symbol                                                                                                                                   
+C3   2u2                          C-EUC1206                          C1206                        CAPACITOR, European symbol                                                                                                                                   
+D1   1N4007                       DIODE-GEN-PURPOSE-1KV-1A(DO-214AC) DO-214AC                     304010013                        
+JP1  JUMPER-SMT_3_1-NC_PASTE_SILK JUMPER-SMT_3_1-NC_PASTE_SILK       SMT-JUMPER_3_1-NC_PASTE_SILK Normally closed solder jumper (1 of 2 connections)
+JP2  JUMPER-SMT_2_NC_PASTE_SILK   JUMPER-SMT_2_NC_PASTE_SILK         SMT-JUMPER_2_NC_PASTE_SILK   Normally closed solder jumper                                                                                                                                
+K1   ARK500/2                     ARK500/2                           ARK500/2                     Svorkovnice - roztec 5mm - dvojita                                                                                                                           
+LFXX LFDPAK                       LFDPAK?C                           DPAK                         LF??C - stabilizátory low-drop                                                                                                                               
+Q1   IRLML2502                    MOSFET-NCH-BSS138                  SOT23-3                      N-channel MOSFETs                              
+Q2   IRF520                       MOSFET-NCH-FDD8780                 DPAK                         N-channel MOSFETs                                 
+R1   10k                          R-EU_R1206                         R1206                        RESISTOR, European symbol                      
+SV1  FEMALE 2x3                   CONN_03X2FEMALE                    2X3                          Multi connection point. Often used as Generic Header-pin footprint for 0.1 inch spaced/style header connections   
+SV2  FEMALE 2x3                   CONN_03X2FEMALE                    2X3                          Multi connection point. Often used as Generic Header-pin footprint for 0.1 inch spaced/style header connections   
+X1   332-02                       332-02                             332-02                       2 Pin - 2mm Dual Row                                                                                                                                         
