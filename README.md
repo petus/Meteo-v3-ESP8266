@@ -1,6 +1,6 @@
 # Meteo-v3-ESP8266<br>
 </br>
-[For czech customers] Pokud chcete koupit celou stavebnici (bez ESP modulu), můžete tak učinit na e-shopu http://kitman.eprodavac.cz/meteostanice-chiptron-meteov3-x-wifi-sada-1-91/</br>
+[For czech makers] Pokud chcete koupit celou stavebnici (bez ESP modulu), můžete tak učinit na e-shopu http://kitman.eprodavac.cz/meteostanice-chiptron-meteov3-x-wifi-sada-1-91/</br>
 </br>
 Czech tutorial: https://chiptron.cz/articles.php?article_id=223<br>
 English tutorial: https://time4ee.com/articles.php?article_id=121<br>
