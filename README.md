@@ -2,10 +2,12 @@
 </br>
 Versatile PCB with ESP8266 (ESP12, ESP07) which may be used like e.g. weather station<br>
 <br/>
-[For czech makers] Pokud chcete koupit celou stavebnici (bez ESP modulu), můžete tak učinit na e-shopu http://kitman.eprodavac.cz/meteostanice-chiptron-meteov3-x-wifi-sada-1-91/</br>
+[For czech makers]</br>
+Pokud chcete koupit celou stavebnici (bez ESP modulu), můžete tak učinit na e-shopu http://kitman.eprodavac.cz/meteostanice-chiptron-meteov3-x-wifi-sada-1-91/</br>
 Představení MeteoV3 i na youtube https://www.youtube.com/watch?v=8mQJllEO83s</br>
+Návod: https://chiptron.cz/articles.php?article_id=223<br>
 </br>
-Czech tutorial: https://chiptron.cz/articles.php?article_id=223<br>
+[For other makers in english]</br>
 English tutorial: https://time4ee.com/articles.php?article_id=121<br>
 The PCB is available on https://www.tindie.com/products/chiptron/meteo-v31-bare-pcb/<br>
 
