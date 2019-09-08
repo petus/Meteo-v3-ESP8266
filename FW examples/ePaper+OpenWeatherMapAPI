@@ -1,0 +1,361 @@
+/*
+ * Weather station with MeteoV3 and ePaper 4.3" with UART bus
+ * https://chiptron.cz/articles.php?article_id=243
+ * 
+ * Created by chiptron.cz
+ * Board+PowerShield - MeteoV3 https://github.com/petus/Meteo-v3-ESP8266
+ * ePaper - https://www.dfrobot.com/product-1312.html
+ * 
+ * Libraries & Info: 
+ * OpenWeatherMap - https://github.com/sfrwmaker/openweathermap.org-ESP8266
+ * JsonParser - https://github.com/squix78/json-streaming-parser
+ * Json - https://arduinojson.org/
+ * ePaper library example - Bitcoin E-Ink - USU Spaces
+ * ePaper wiki - https://www.waveshare.com/wiki/4.3inch_e-Paper_UART_Module
+ * Icons - https://www.iconfinder.com/iconsets/weather-413
+ * 
+ */
+
+#include <ESP8266WiFi.h>
+#include <WiFiClient.h>
+#include <ESP8266mDNS.h>
+#include <ESP8266HTTPClient.h>
+#include <Time.h>
+#include <TimeLib.h>
+#include <OpenWeatherMap.h>
+
+#include <epd.h> //ePaper
+
+#define timezone 3
+#define SLEEP_DELAY_IN_SECONDS  1800 //time of delay, 1800 = 30mins
+
+const char *ow_key      = "----"; // key of API of OpenWeatherMap
+const char *nodename    = "----"; // varaible name
+const char *wifi_ssid   = "----"; // WiFi SSID
+const char *wifi_passwd = "----"; // WiFi password
+
+OWMconditions      owCC;
+OWMfiveForecast    owF5;
+
+char buf[100] = {0}; // temporary buffer
+
+void connectWiFiInit(void) 
+{
+  WiFi.hostname(nodename);
+  String ssid   = wifi_ssid;
+  String passwd = wifi_passwd;
+  WiFi.begin(ssid.c_str(), passwd.c_str());
+  while (WiFi.status() != WL_CONNECTED) 
+  {
+    delay(500);
+    Serial.print(".");
+  }
+}
+
+String sunTime(String timestamp) 
+{
+  time_t ts = timestamp.toInt();
+  char buff[30];
+  sprintf(buff, "%2d:%02d", hour(ts)+timezone, minute(ts));
+  return String(buff);
+}
+String dateTime(String timestamp) 
+{
+  time_t ts = timestamp.toInt();
+  char buff[30];
+  sprintf(buff, "%2d:%02d %02d-%02d-%4d", hour(ts)+timezone, minute(ts), day(ts), month(ts), year(ts));
+  return String(buff);
+}
+
+  
+void setup() 
+{
+  Serial.begin(115200);
+
+  connectWiFiInit();
+  pinMode(12, OUTPUT);  // define GPIO for switching of ePaper - through PowerShield of MeteoV3
+}
+
+void loop() 
+{  
+  digitalWrite(12, HIGH);   // turn on the ePaper
+  MDNS.begin(nodename);
+
+  /*    Current weather     */
+  OWM_conditions *ow_cond = new OWM_conditions;
+  owCC.updateConditions(ow_cond, ow_key, "cz", "Prague", "metric"); // update yours
+
+  Serial.print("Latitude & Longtitude: ");
+  Serial.print("<" + ow_cond->longtitude + " " + ow_cond->latitude + "> @" + dateTime(ow_cond->dt) + ": ");
+  Serial.println("icon: " + ow_cond->icon + ", " + " temp.: " + ow_cond->temp + ", press.: " + ow_cond->pressure);
+
+  /*    Forecast      */
+  OWM_fiveForecast *ow_fcast5 = new OWM_fiveForecast[40];
+  byte entries = owF5.updateForecast(ow_fcast5, 40, ow_key, "cz", "Prague", "metric"); // update yours
+  Serial.print("Entries: "); Serial.println(entries+1);
+  for (byte i = 0; i <= entries; ++i) 
+  { 
+    Serial.print(dateTime(ow_fcast5[i].dt) + ": icon: ");
+    Serial.print(ow_fcast5[i].icon + ", temp.: [" + ow_fcast5[i].t_min + ", " + ow_fcast5[i].t_max + "], press.: " + ow_fcast5[i].pressure);
+    Serial.println(", descr.: " + ow_fcast5[i].description + ":: " + ow_fcast5[i].cond + " " + ow_fcast5[i].cond_value);
+  }
+
+  /*ePaper*/
+  epd_clear();  // clear ePaper
+
+  /*
+   * ASCII 32
+   */
+  epd_set_color(BLACK, WHITE);
+  epd_set_ch_font(GBK32);
+  epd_set_en_font(ASCII32);
+
+  /*right down labels*/
+  /*
+   * |--------------|--------------------|
+   * |--------------|--------------------|
+   * |______________|--------------------|
+   * |--------------|--------------------|
+   * |--------------|#######------###----|
+   * |--------------|#######------#######|
+   */
+  epd_disp_string("Wind speed", 330, 370);
+ 
+  epd_disp_string("Sunset", 610, 500);
+  epd_disp_string("Sunrise", 330, 500);
+  
+  String sCond = "" + String(ow_cond->cond) + "";
+  sCond.toCharArray(buf, 50);
+  epd_disp_string(&buf, 610, 370);
+
+  /*left labels*/
+  /*
+   * |-----##-------|--------------------|
+   * |--------------|--------------------|
+   * |______________|--------------------|
+   * |-----##-------|--------------------|
+   * |--------------|--------------------|
+   * |--------------|--------------------|
+   */
+
+  epd_disp_string("3h", 150, 10);
+  epd_disp_string("6h", 150, 260);
+
+  /*
+   * |--------------|--------------------|
+   * |#######--####-|--------------------|
+   * |______________|--------------------|
+   * |--------------|--------------------|
+   * |#######--####-|--------------------|
+   * |--------------|--------------------|
+   */  
+  /*left up*/
+  String sfWeather = "" + String(ow_fcast5[0].description) + "";
+  sfWeather.toCharArray(buf, 50);
+  epd_disp_string(&buf, 10, 190);
+
+  /*left down*/
+  sfWeather = "" + String(ow_fcast5[1].description) + "";
+  sfWeather.toCharArray(buf, 50);
+  epd_disp_string(&buf, 10, 440);
+  
+  /*time*/
+  epd_disp_string("Time of data:", 30, 530);
+
+  /*
+   * |--------------|--------------------|
+   * |--------------|--------------------|
+   * |______________|--------------------|
+   * |--------------|--------------------|
+   * |--------------|--------------------|
+   * |-############-|--------------------|
+   */  
+  String sTime = "" + String(dateTime(ow_cond->dt));
+  sTime.toCharArray(buf, 50);
+  epd_disp_string(&buf, 30, 560);
+
+  /*
+   * ASCII 64
+   */ 
+  epd_set_ch_font(GBK64);
+  epd_set_en_font(ASCII64);
+
+  /*right*/
+    /*
+   * |--------------|--------------------|
+   * |--------------|--#####-------------|
+   * |______________|--#####-------------|
+   * |--------------|--#####-------------|
+   * |--------------|--------------------|
+   * |--------------|--------------------|
+   */
+  String sIcon = "" + String(ow_cond->icon);
+  epd_set_memory(1);  // microSD card
+  
+  // choose Icon based on icon name from OpenWeatherMap API
+  if(sIcon == "01d")
+    epd_disp_bitmap("PIC01D.BMP", 380, 150);
+  else if(sIcon == "01n")
+    epd_disp_bitmap("PIC01N.BMP", 380, 150);
+  else if(sIcon == "02d")
+    epd_disp_bitmap("PIC02D.BMP", 380, 150);
+  else if(sIcon == "02n")
+    epd_disp_bitmap("PIC02N.BMP", 380, 150);
+  else if(sIcon == "03d")
+    epd_disp_bitmap("PIC03D.BMP", 380, 150);
+  else if(sIcon == "03n")
+    epd_disp_bitmap("PIC03N.BMP", 380, 150);
+  else if(sIcon == "04d")
+    epd_disp_bitmap("PIC04D.BMP", 380, 150);
+  else if(sIcon == "04n")
+    epd_disp_bitmap("PIC04N.BMP", 380, 150);
+  else if(sIcon == "09d")
+    epd_disp_bitmap("PIC09D.BMP", 380, 150);
+  else if(sIcon == "09n")
+    epd_disp_bitmap("PIC09N.BMP", 380, 150);
+  else if(sIcon == "10d")
+    epd_disp_bitmap("PIC10D.BMP", 380, 150);
+  else if(sIcon == "10n")
+    epd_disp_bitmap("PIC10N.BMP", 380, 150);
+  else if(sIcon == "11d")
+    epd_disp_bitmap("PIC11D.BMP", 380, 150);
+  else if(sIcon == "11n")
+    epd_disp_bitmap("PIC11N.BMP", 380, 150);
+  else if(sIcon == "13d")
+    epd_disp_bitmap("PIC13D.BMP", 380, 150);
+  else if(sIcon == "13n")
+    epd_disp_bitmap("PIC13N.BMP", 380, 150);
+  else if(sIcon == "50d")
+    epd_disp_bitmap("PIC50D.BMP", 380, 150);
+  else if(sIcon == "50n")
+    epd_disp_bitmap("PIC50N.BMP", 380, 150);
+  else
+  {
+    ;
+  }
+
+  /*
+   * |--------------|--------------------|
+   * |--------------|-------------####---|
+   * |______________|-------------####---|
+   * |--------------|--------------------|
+   * |--------------|--####----------##--|
+   * |--------------|--------------------|
+   */
+
+  String sTemperature = "" + String(ow_cond->temp) + " 'C";
+  sTemperature.toCharArray(buf, 50);
+  epd_disp_string(&buf, 610, 130);
+
+  String sHumidity = "" + String(ow_cond->humidity) + " %";
+  sHumidity.toCharArray(buf, 50);
+  epd_disp_string(&buf, 610, 200);
+
+  String sWindSpeed = "" + String(ow_cond->w_speed) + " m/s";
+  sWindSpeed.toCharArray(buf, 50);
+  epd_disp_string(&buf, 330, 400);
+
+  String sCondValue;
+  if(sCond == "clouds")
+    sCondValue = "" + String(ow_cond->cond_value) + " %";
+  else
+    sCondValue = "" + String(ow_cond->cond_value) + " mm";
+    
+  sCondValue.toCharArray(buf, 50);
+  epd_disp_string(&buf, 610, 400);
+
+  /*
+   * ASCII 48
+   */
+  epd_set_ch_font(GBK48);
+  epd_set_en_font(ASCII48);
+
+  /*right*/
+    /*
+   * |--------------|--###########-------|
+   * |--------------|--------------------|
+   * |______________|--------------------|
+   * |--------------|--------------------|
+   * |--------------|--------------------|
+   * |--------------|--######------#####-|
+   */
+  String sWeather = "" + ow_cond->description;
+  sWeather.toCharArray(buf, 50);
+  epd_disp_string(&buf, 330, 10);
+  
+  String sSunrise = "" + String(sunTime(ow_cond->sunrise));
+  sSunrise.toCharArray(buf, 50);
+  epd_disp_string(&buf, 330, 530);
+
+  String sSunset = "" + String(sunTime(ow_cond->sunset));
+  sSunset.toCharArray(buf, 50);
+  epd_disp_string(&buf, 610, 530);
+
+  /*left up*/
+    /*
+   * |-#####--------|--------------------|
+   * |-#####--------|--------------------|
+   * |_#####________|--------------------|
+   * |--------------|--------------------|
+   * |--------------|--------------------|
+   * |--------------|--------------------|
+   */
+  String sfTemperature = "" + String(ow_fcast5[0].t_min) + " 'C";
+  sfTemperature.toCharArray(buf, 50);
+  epd_disp_string(&buf, 10, 40);
+
+  String sfHumidity = "" + String(ow_fcast5[0].humidity) + " %";
+  sfHumidity.toCharArray(buf, 50);
+  epd_disp_string(&buf, 10, 90);
+
+  String sfCondValue;
+  if(ow_fcast5[0].cond == "clouds")
+    sfCondValue = "" + String(ow_fcast5[0].cond) + ": " + String(ow_fcast5[0].cond_value) + " %";
+  else
+    sfCondValue = "" + String(ow_fcast5[0].cond) + ": " + String(ow_fcast5[0].cond_value) + " mm";
+  sfCondValue.toCharArray(buf, 50);
+  epd_disp_string(&buf, 10, 140);
+
+  /*left down*/
+  /*
+   * |--------------|--------------------|
+   * |--------------|--------------------|
+   * |______________|--------------------|
+   * |-####---------|--------------------|
+   * |-####---------|--------------------|
+   * |-####---------|--------------------|
+   */
+
+  sfTemperature = "" + String(ow_fcast5[1].t_min) + " 'C";
+  sfTemperature.toCharArray(buf, 50);
+  epd_disp_string(&buf, 10, 290);
+
+  sfHumidity = "" + String(ow_fcast5[1].humidity) + " %";
+  sfHumidity.toCharArray(buf, 50);
+  epd_disp_string(&buf, 10, 340);
+
+  if(ow_fcast5[1].cond == "clouds")
+    sfCondValue = "" + String(ow_fcast5[1].cond) + ": " + String(ow_fcast5[1].cond_value) + " %";
+  else
+    sfCondValue = "" + String(ow_fcast5[1].cond) + ": " + String(ow_fcast5[1].cond_value) + " mm";
+  sfCondValue.toCharArray(buf, 50);
+  epd_disp_string(&buf, 10, 390);
+
+  /*draw lines*/
+  epd_draw_line(320, 0, 320, 600);
+  epd_draw_line(321, 0, 321, 600);
+  epd_draw_line(322, 0, 322, 600);
+
+  epd_draw_line(0, 250, 320, 250);
+
+  epd_draw_line(0, 520, 320, 520);
+  epd_draw_line(0, 521, 320, 521);
+  epd_draw_line(0, 522, 320, 522);
+
+  epd_udpate(); // update the ePaper
+
+  delay(2000);
+  
+  digitalWrite(12, LOW);   // turn off the ePaper
+  ESP.deepSleep(SLEEP_DELAY_IN_SECONDS * 1000000, WAKE_RF_DEFAULT);
+}
