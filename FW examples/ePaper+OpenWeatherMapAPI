@@ -78,7 +78,6 @@ void setup()
 
 void loop() 
 {  
-  digitalWrite(12, HIGH);   // turn on the ePaper
   MDNS.begin(nodename);
 
   /*    Current weather     */
@@ -100,8 +99,10 @@ void loop()
     Serial.println(", descr.: " + ow_fcast5[i].description + ":: " + ow_fcast5[i].cond + " " + ow_fcast5[i].cond_value);
   }
 
+  digitalWrite(12, HIGH);   // turn on the ePaper
   /*ePaper*/
   epd_clear();  // clear ePaper
+  delay(3000);
 
   /*
    * ASCII 32
@@ -354,7 +355,7 @@ void loop()
 
   epd_udpate(); // update the ePaper
 
-  delay(2000);
+  delay(4000);
   
   digitalWrite(12, LOW);   // turn off the ePaper
   ESP.deepSleep(SLEEP_DELAY_IN_SECONDS * 1000000, WAKE_RF_DEFAULT);
