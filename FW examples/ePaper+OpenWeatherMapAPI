@@ -139,8 +139,14 @@ void loop()
    * |--------------|--------------------|
    */
 
-  epd_disp_string("3h", 150, 10);
-  epd_disp_string("6h", 150, 260);
+    /*left labels*/
+    String s3hTime = "" + String(sunTime(ow_fcast5[0].dt)) + "";
+    s3hTime.toCharArray(buf, 50);
+    epd_disp_string(&buf, 150, 10);
+
+    String s6hTime = "" + String(sunTime(ow_fcast5[1].dt)) + "";
+    s6hTime.toCharArray(buf, 50);
+    epd_disp_string(&buf, 150, 260);
 
   /*
    * |--------------|--------------------|
